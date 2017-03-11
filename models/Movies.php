@@ -12,8 +12,10 @@ use Yii;
  * @property string $Description
  * @property string $imageUrl
  *
- * @property MoviesDirectors[] $moviesDirectors
+ * @property MovieDirectors[] $movieDirectors
  * @property Directors[] $directors
+ * @Property ActorMovie[] $actorMovie
+ * @property Actor[] $actor
  */
 class Movies extends \yii\db\ActiveRecord
 {
@@ -51,9 +53,9 @@ class Movies extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getMoviesDirectors()
+    public function getMovieDirectors()
     {
-        return $this->hasMany(MoviesDirectors::className(), ['Movies_id' => 'id']);
+        return $this->hasMany(MovieDirectors::className(), ['Movies_id' => 'id']);
     }
 
     /**
@@ -64,10 +66,21 @@ class Movies extends \yii\db\ActiveRecord
         return $this->hasMany(Directors::className(), ['id' => 'Directors_id'])->viaTable('Movies_Directors', ['Movies_id' => 'id']);
     }
 
+    public function  getActor(){
+
+        $actorMovie = ActorMovie::find()->where(['Movie_id' => $this->id])->all();
+        $actors = array();
+        foreach ($actorMovie as $item){
+            $actors[] = Actor::find()->where(['id'=>$item->actor_id])->one();
+        }
+        return $actors;
+    }
+
     public function fields()
     {
-        $fields = parent::fields();
-        $fields[] = 'directors';
-        return $fields;
+        $array =  parent::fields();
+        $array[] = "directors";
+        $array[] = "actor";
+        return $array;
     }
 }
